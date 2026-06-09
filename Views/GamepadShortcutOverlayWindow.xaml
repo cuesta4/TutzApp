@@ -1,0 +1,81 @@
+<Window x:Class="TutzApp.Views.GamepadShortcutOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="TutzApp - Atalhos de Gamepad"
+        Height="500" Width="430"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowActivated="False"
+        ShowInTaskbar="False"
+        Focusable="False"
+        WindowStartupLocation="CenterScreen">
+    
+    <Border Background="#F2101010" 
+            BorderBrush="#33FFFFFF" 
+            BorderThickness="1.5" 
+            CornerRadius="16"
+            Padding="20">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="25" Color="Black" Opacity="0.55" ShadowDepth="0" />
+        </Border.Effect>
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Cabeçalho -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                <TextBlock Text="PROJETO TUTZ" 
+                           Foreground="#80FFFFFF" 
+                           FontSize="9" 
+                           FontWeight="Bold" 
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Atalhos de Gamepad" 
+                           Foreground="White" 
+                           FontSize="18" 
+                           FontWeight="SemiBold" 
+                           HorizontalAlignment="Center"
+                           Margin="0,2,0,0"/>
+            </StackPanel>
+
+            <!-- Lista de atalhos dinâmica -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,5">
+                <ItemsControl ItemsSource="{Binding}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Background="#1500E5FF" BorderBrush="#3300E5FF" BorderThickness="1" CornerRadius="4" Padding="5,2" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding ComboText}" Foreground="#00E5FF" FontSize="10" FontWeight="Bold" FontFamily="Consolas"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                    <TextBlock Text="{Binding Name}" Foreground="White" FontWeight="SemiBold" FontSize="11" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding DisplayDescription}" Foreground="#DDFFFFFF" FontSize="9.5" Margin="0,1,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Rodapé informativo -->
+            <TextBlock Grid.Row="2" 
+                       Text="Aperte B no controle | Esc no teclado para fechar" 
+                       Foreground="#55FFFFFF" 
+                       FontSize="10" 
+                       HorizontalAlignment="Center"
+                       Margin="0,5,0,0"/>
+        </Grid>
+    </Border>
+</Window>

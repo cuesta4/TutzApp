@@ -1,0 +1,1206 @@
+<ui:FluentWindow x:Class="TutzApp.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:vm="clr-namespace:TutzApp.ViewModels"
+        Title="Projeto Tutz - Dashboard"
+        Icon="pack://application:,,,/Assets/AppIcon.ico"
+        Height="700" Width="1020"
+        MinHeight="640" MinWidth="960"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen"
+        ExtendsContentIntoTitleBar="True"
+        WindowBackdropType="Mica"
+        Background="Transparent"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display">
+
+    <ui:FluentWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <Style x:Key="PageTitleTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+        <Style x:Key="PageDescriptionTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,0,0,24" />
+        </Style>
+        <Style x:Key="SectionTitleTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="Margin" Value="0,4,0,12" />
+        </Style>
+        <Style x:Key="FieldLabelTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11.5" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+        <Style x:Key="HiddenTabItemStyle" TargetType="TabItem">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Setter Property="MinWidth" Value="150" />
+            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Root"
+                                Margin="0,2"
+                                Padding="12,9"
+                                CornerRadius="8"
+                                Background="Transparent"
+                                BorderThickness="1"
+                                BorderBrush="Transparent">
+                            <ContentPresenter ContentSource="Header"
+                                              RecognizesAccessKey="True"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource ControlAltFillColorTertiaryBrush}" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource SystemAccentColorBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BorderlessTabControlStyle" TargetType="TabControl">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                        <Grid KeyboardNavigation.TabNavigation="Local">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TabPanel Name="HeaderPanel" 
+                                      Grid.Row="0" 
+                                      IsItemsHost="True" />
+                            <ContentPresenter x:Name="PART_SelectedContentHost"
+                                              Grid.Row="1" 
+                                              ContentSource="SelectedContent" 
+                                              Margin="{TemplateBinding Padding}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DrawerNavButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Margin" Value="6,3" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Root"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource ControlAltFillColorTertiaryBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DrawerNavRadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Margin" Value="6,3" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Root"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8">
+                            <Grid>
+                                <Border Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter VerticalAlignment="Center"
+                                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                                </Border>
+                                <Border x:Name="ActiveIndicator"
+                                        Width="3"
+                                        Height="16"
+                                        CornerRadius="1.5"
+                                        Background="{DynamicResource SystemAccentColorBrush}"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        Margin="4,0,0,0"
+                                        Visibility="Collapsed"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource ControlAltFillColorSecondaryBrush}" />
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource ControlAltFillColorTertiaryBrush}" />
+                                <Setter TargetName="ActiveIndicator" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource ControlAltFillColorQuaternaryBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </ui:FluentWindow.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Modern extended TitleBar -->
+        <ui:TitleBar Grid.Row="0"
+                     Title="Projeto Tutz - Dashboard"
+                     Icon="pack://application:,,,/Assets/AppIcon.ico"
+                     Height="48" />
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="280" /> <!-- Status do sistema -->
+                <ColumnDefinition Width="*" />   <!-- Área central -->
+            </Grid.ColumnDefinitions>
+            <Border x:Name="DrawerPanel"
+                    Grid.Column="0"
+                    Width="64"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="0,0,1,0"
+                    Background="Transparent"
+                    ClipToBounds="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Button Grid.Row="0"
+                            Style="{StaticResource DrawerNavButtonStyle}"
+                            Click="ToggleDrawer_Click"
+                            Margin="8,10,8,8"
+                            ToolTip="Recolher menu">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Navigation24" Width="18" Margin="0"/>
+                            <TextBlock x:Name="DrawerTitleText" Tag="DrawerLabel" Text="Projeto Tutz" FontWeight="SemiBold" VerticalAlignment="Center" Visibility="Collapsed" Opacity="0"/>
+                        </StackPanel>
+                    </Button>
+
+                    <StackPanel Grid.Row="1" Margin="0,4,0,0">
+                        <RadioButton Style="{StaticResource DrawerNavRadioButtonStyle}" GroupName="DrawerNav" IsChecked="True" Click="NavMonitor_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Desktop24" Width="18" Margin="0"/>
+                                <TextBlock Tag="DrawerLabel" Text="Monitor" Visibility="Collapsed" Opacity="0"/>
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton Style="{StaticResource DrawerNavRadioButtonStyle}" GroupName="DrawerNav" Click="NavGamepad_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="XboxController24" Width="18" Margin="0"/>
+                                <TextBlock Tag="DrawerLabel" Text="Gamepad" Visibility="Collapsed" Opacity="0"/>
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton Style="{StaticResource DrawerNavRadioButtonStyle}" GroupName="DrawerNav" Click="NavKeyboard_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Keyboard24" Width="18" Margin="0"/>
+                                <TextBlock Tag="DrawerLabel" Text="Teclado" Visibility="Collapsed" Opacity="0"/>
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton Style="{StaticResource DrawerNavRadioButtonStyle}" GroupName="DrawerNav" Click="NavMouse_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Cursor24" Width="18" Margin="0"/>
+                                <TextBlock Tag="DrawerLabel" Text="Mouse" Visibility="Collapsed" Opacity="0"/>
+                            </StackPanel>
+                        </RadioButton>
+                        <RadioButton Style="{StaticResource DrawerNavRadioButtonStyle}" GroupName="DrawerNav" Click="NavAutomation_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Settings24" Width="18" Margin="0"/>
+                                <TextBlock Tag="DrawerLabel" Text="Automação" Visibility="Collapsed" Opacity="0"/>
+                            </StackPanel>
+                        </RadioButton>
+                    </StackPanel>
+
+                    <RadioButton Grid.Row="2"
+                             Style="{StaticResource DrawerNavRadioButtonStyle}"
+                             GroupName="DrawerNav"
+                             Click="NavLogs_Click"
+                             Margin="8,8,8,10">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Clipboard24" Width="18" Margin="0"/>
+                            <TextBlock Tag="DrawerLabel" Text="Logs &amp; Geral" Visibility="Collapsed" Opacity="0"/>
+                        </StackPanel>
+                    </RadioButton>
+                </Grid>
+            </Border>
+
+            <!-- PAINEL LATERAL: STATUS GERAL -->
+            <Border Grid.Column="1" 
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="0,0,1,0" 
+                    Background="Transparent"
+                    Padding="18">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" 
+                               Text="STATUS DO SISTEMA" 
+                               FontSize="11" 
+                               FontWeight="Bold" 
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Margin="0,0,0,14" />
+
+                    <!-- CARD DE STATUS DE RESOLUÇÃO -->
+                    <ui:Card Grid.Row="1" Margin="0,0,0,12" Padding="14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0" Symbol="Desktop24" FontSize="22" Foreground="{DynamicResource SystemAccentColorBrush}" Margin="0,0,12,0"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Resolução Ativa" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                <TextBlock Text="{Binding CurrentResolution}" Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontWeight="SemiBold" FontSize="13" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </ui:Card>
+
+                    <!-- CARD DE STATUS DE JOGO -->
+                    <ui:Card Grid.Row="2" Margin="0,0,0,12" Padding="14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0" Symbol="Games24" FontSize="22" Foreground="{DynamicResource SystemAccentColorBrush}" Margin="0,0,12,0"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Jogo Ativo" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                <TextBlock Text="{Binding ActiveGame}" Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontWeight="SemiBold" FontSize="13" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </ui:Card>
+
+                    <!-- CARD VELOCIDADE MOUSE -->
+                    <ui:Card Grid.Row="3" Margin="0,0,0,12" Padding="14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0" Symbol="Cursor24" FontSize="22" Foreground="{DynamicResource SystemAccentColorBrush}" Margin="0,0,12,0"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Velocidade Mouse" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                    <TextBlock Text="{Binding MouseSpeed}" Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontWeight="SemiBold" FontSize="13" />
+                                    <TextBlock Text="/20" FontSize="10" Foreground="{DynamicResource TextFillColorTertiaryBrush}" VerticalAlignment="Bottom" Margin="1,0,0,1"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </ui:Card>
+
+                    <!-- CARD DE STATUS DE CONEXÃO DO GAMEPAD -->
+                    <ui:Card Grid.Row="4" VerticalAlignment="Top" Margin="0,0,0,12" Padding="14">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ui:SymbolIcon Grid.Column="0" 
+                                           Symbol="XboxController24" 
+                                           FontSize="22" 
+                                           Margin="0,0,12,0">
+                                <ui:SymbolIcon.Style>
+                                    <Style TargetType="ui:SymbolIcon">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsGamepadConnected}" Value="True">
+                                                <Setter Property="Foreground" Value="#22C55E" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsGamepadConnected}" Value="False">
+                                                <Setter Property="Foreground" Value="#EF4444" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ui:SymbolIcon.Style>
+                            </ui:SymbolIcon>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Controle Xbox" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                <TextBlock Text="{Binding GamepadState}" FontWeight="SemiBold" FontSize="13" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </ui:Card>
+
+                    <!-- WATCHDOG STATUS -->
+                    <ui:Card Grid.Row="5" Padding="12">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="CheckmarkCircle24" 
+                                           Foreground="#22C55E" 
+                                           FontSize="16" 
+                                           Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding StatusMessage}" 
+                                       VerticalAlignment="Center" 
+                                       FontSize="11" 
+                                       FontWeight="Medium"/>
+                        </StackPanel>
+                    </ui:Card>
+                </Grid>
+            </Border>
+
+            <!-- ÁREA CENTRAL COM ABAS -->
+            <Border Grid.Column="2"
+                    Margin="16"
+                    Padding="16"
+                    CornerRadius="12"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+                    <TabControl x:Name="MainTabs"
+                                Style="{StaticResource BorderlessTabControlStyle}"
+                                ItemContainerStyle="{StaticResource HiddenTabItemStyle}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="4">
+                                <!-- TAB 1: MONITOR -->
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Desktop24" Margin="0,0,6,0" FontSize="16"/>
+                                <TextBlock Text="Monitor" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </TabItem.Header>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14,18,14,14">
+                            <StackPanel>
+                                <TextBlock Text="Monitor e Cor" Style="{StaticResource PageTitleTextStyle}" />
+                                <TextBlock Text="Controle Digital Vibrance por aplicativo usando a janela em foco e restaure o padrão automaticamente ao sair." 
+                                           Style="{StaticResource PageDescriptionTextStyle}"/>
+
+                                <TextBlock Text="Digital Vibrance por Aplicativo" Style="{StaticResource SectionTitleTextStyle}"/>
+                                <ui:Card Padding="18" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="Ajuste automático via NVIDIA NVAPI" FontSize="13" FontWeight="SemiBold" />
+                                                <TextBlock Text="Checa a janela em foco a cada 2 segundos. O valor do app é somado ao padrão: 0% = 50% no driver, 100% = 100% no driver." FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Margin="0,3,0,0" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                            <ui:ToggleSwitch Grid.Column="1"
+                                                             IsChecked="{Binding IsVibranceEnabled}"
+                                                             VerticalAlignment="Center"
+                                                             Margin="16,0,0,0" />
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="180" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="Padrão do driver ao sair dos apps" Style="{StaticResource FieldLabelTextStyle}" />
+                                                <TextBlock Text="Normalmente 50%. Use outro valor apenas se seu padrão no Painel NVIDIA for diferente." FontSize="10.5" Foreground="{DynamicResource TextFillColorTertiaryBrush}" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                            <ui:NumberBox Grid.Column="1"
+                                                          Value="{Binding VibranceDefaultDriverLevel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                          Minimum="0"
+                                                          Maximum="100"
+                                                          SmallChange="1"
+                                                          LargeChange="10"
+                                                          SpinButtonPlacementMode="Inline"
+                                                          HorizontalAlignment="Stretch"
+                                                          VerticalAlignment="Center"
+                                                          Margin="16,0,0,0" />
+                                        </Grid>
+
+                                        <Border BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Background="{DynamicResource ControlAltFillColorTertiaryBrush}" Margin="0,0,0,14">
+                                            <ListView ItemsSource="{Binding VibranceAppRules}" MaxHeight="220" Background="Transparent" BorderThickness="0" Padding="4,4,16,4">
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="6">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="190" />
+                                                                <ColumnDefinition Width="Auto" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Image Grid.Column="0" Source="{Binding IconPath}" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="12"/>
+                                                                <TextBlock Text="{Binding ProcessName}" FontSize="10.5" Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="2" Margin="12,0" VerticalAlignment="Center">
+                                                                <TextBlock Text="Vibrance do app" Style="{StaticResource FieldLabelTextStyle}" />
+                                                                <ui:NumberBox Value="{Binding AppVibrancePercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                              Minimum="0"
+                                                                              Maximum="100"
+                                                                              SmallChange="1"
+                                                                              LargeChange="10"
+                                                                              SpinButtonPlacementMode="Inline"
+                                                                              HorizontalAlignment="Stretch" />
+                                                            </StackPanel>
+                                                            <ui:Button Grid.Column="3"
+                                                                       Command="{Binding DataContext.RemoveVibranceAppCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                                       CommandParameter="{Binding}"
+                                                                       VerticalAlignment="Center"
+                                                                       ToolTip="Remover aplicativo">
+                                                                <ui:SymbolIcon Symbol="Delete24" />
+                                                            </ui:Button>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                                <ListView.ItemContainerStyle>
+                                                    <Style TargetType="ListViewItem">
+                                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                                                        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                                    </Style>
+                                                </ListView.ItemContainerStyle>
+                                            </ListView>
+                                        </Border>
+
+                                        <ui:Button Content="Adicionar .exe"
+                                                   Command="{Binding AddVibranceAppCommand}"
+                                                   Appearance="Secondary"
+                                                   HorizontalAlignment="Right"
+                                                   Padding="18,8" />
+                                    </StackPanel>
+                                </ui:Card>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- TAB 2: GAMEPAD -->
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="XboxController24" Margin="0,0,6,0" FontSize="16"/>
+                                <TextBlock Text="Gamepad" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </TabItem.Header>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14,18,14,14">
+                            <StackPanel>
+                                <TextBlock Text="Integração de Gamepad XInput" Style="{StaticResource PageTitleTextStyle}" />
+                                <TextBlock Text="Monitore as conexões físicas e controle atalhos de gravação de forma silenciosa diretamente no seu controle de Xbox." 
+                                           Style="{StaticResource PageDescriptionTextStyle}"/>
+
+                                <ui:Card Padding="15" Margin="0,0,0,20">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Controle Xbox Selecionado" FontSize="12" FontWeight="SemiBold" />
+                                            <TextBlock Text="Status atual de detecção física via barramento XInput no Windows." FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Margin="0,2,0,0" />
+                                        </StackPanel>
+                                        <Border Grid.Column="1" CornerRadius="4" Padding="8,4" VerticalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsGamepadConnected}" Value="True">
+                                                            <Setter Property="Background" Value="#1022C55E"/>
+                                                            <Setter Property="BorderBrush" Value="#4422C55E"/>
+                                                            <Setter Property="BorderThickness" Value="1"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsGamepadConnected}" Value="False">
+                                                            <Setter Property="Background" Value="#10EF4444"/>
+                                                            <Setter Property="BorderBrush" Value="#44EF4444"/>
+                                                            <Setter Property="BorderThickness" Value="1"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding GamepadState}" FontWeight="Bold" FontSize="11">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsGamepadConnected}" Value="True">
+                                                                <Setter Property="Foreground" Value="#22C55E"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsGamepadConnected}" Value="False">
+                                                                <Setter Property="Foreground" Value="#EF4444"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                    </Grid>
+                                </ui:Card>
+
+                                <!-- Atalhos Cadastrados (Full Width) -->
+                                <TextBlock Text="Atalhos do Gamepad" Style="{StaticResource SectionTitleTextStyle}" Margin="0,12,0,10"/>
+                                <ui:Card Padding="8" Margin="0,0,0,20">
+                                    <ListView ItemsSource="{Binding GamepadShortcuts}" ScrollViewer.VerticalScrollBarVisibility="Auto" MaxHeight="280" Background="Transparent" BorderThickness="0" Padding="0,0,12,0">
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="5">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontWeight="SemiBold" FontSize="13"/>
+                                                            <TextBlock Text=" — " Foreground="{DynamicResource TextFillColorTertiaryBrush}" FontSize="13" VerticalAlignment="Center"/>
+                                                            <TextBlock Text="{Binding DisplayDescription}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                            <Border Background="{DynamicResource SystemAccentColorBrush}" CornerRadius="4" Padding="8,3" Opacity="0.85">
+                                                                <TextBlock Text="{Binding ComboText}" Foreground="White" FontSize="11" FontWeight="Bold" FontFamily="Consolas"/>
+                                                            </Border>
+                                                            <Border Background="{DynamicResource ControlAltFillColorSecondaryBrush}" CornerRadius="4" Padding="6,3" Margin="6,0,0,0">
+                                                                <TextBlock Text="{Binding TriggerMode}" Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontSize="10" FontFamily="Consolas"/>
+                                                            </Border>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                    <ui:Button Grid.Column="1" 
+                                                               Command="{Binding DataContext.DeleteGamepadShortcutCommand, RelativeSource={RelativeSource AncestorType=ListView}}" 
+                                                               CommandParameter="{Binding}" 
+                                                               VerticalAlignment="Center"
+                                                               Margin="10,0,0,0"
+                                                               ToolTip="Remover atalho">
+                                                        <ui:SymbolIcon Symbol="Delete24" />
+                                                    </ui:Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}"/>
+                                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                                <Setter Property="Padding" Value="8"/>
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                    </ListView>
+                                </ui:Card>
+
+                                <!-- Criar Novo Atalho (Redesigned) -->
+                                <TextBlock Text="Criar Novo Atalho" Style="{StaticResource SectionTitleTextStyle}" Margin="0,18,0,10"/>
+                                <ui:Card Padding="20" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        
+                                        <!-- Subseção 1: Identificação (Nome e Descrição) -->
+                                        <Border BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                                                BorderThickness="1" 
+                                                CornerRadius="8" 
+                                                Padding="14" 
+                                                Background="{DynamicResource ControlAltFillColorQuaternaryBrush}"
+                                                Margin="0,0,0,14">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                                    <ui:SymbolIcon Symbol="Info24" Foreground="{DynamicResource SystemAccentColorBrush}" FontSize="18" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Informações Gerais" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                                                        <TextBlock Text="Nome do Atalho:" Style="{StaticResource FieldLabelTextStyle}"/>
+                                                        <ui:TextBox Text="{Binding NewShortcutName, UpdateSourceTrigger=PropertyChanged}" 
+                                                                    PlaceholderText="Ex: Abrir Steam, Capturar Tela..." 
+                                                                    Height="34" VerticalContentAlignment="Center"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                        <TextBlock Text="Descrição (opcional):" Style="{StaticResource FieldLabelTextStyle}"/>
+                                                        <ui:TextBox Text="{Binding NewShortcutDescription, UpdateSourceTrigger=PropertyChanged}" 
+                                                                    PlaceholderText="Uma breve descrição sobre a finalidade deste atalho..." 
+                                                                    Height="34" VerticalContentAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Subseção 2: Gatilho de Ativação (Botões do Gamepad) -->
+                                        <Border BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                                                BorderThickness="1" 
+                                                CornerRadius="8" 
+                                                Padding="14" 
+                                                Background="{DynamicResource ControlAltFillColorQuaternaryBrush}"
+                                                Margin="0,0,0,14">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                                    <ui:SymbolIcon Symbol="XboxController24" Foreground="{DynamicResource SystemAccentColorBrush}" FontSize="18" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Gatilho do Gamepad" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="2.5*" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    
+                                                    <!-- Dropdowns de combinação de botões -->
+                                                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                                        <TextBlock Text="Combinação de Botões (até 4 botões pressionados juntos):" Style="{StaticResource FieldLabelTextStyle}"/>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <ComboBox Grid.Column="0" ItemsSource="{Binding AvailableButtons}" SelectedItem="{Binding NewShortcutButton1}" Margin="0,0,6,0" Height="34" VerticalContentAlignment="Center"/>
+                                                            <ComboBox Grid.Column="1" ItemsSource="{Binding AvailableButtons}" SelectedItem="{Binding NewShortcutButton2}" Margin="6,0,6,0" Height="34" VerticalContentAlignment="Center"/>
+                                                            <ComboBox Grid.Column="2" ItemsSource="{Binding AvailableButtons}" SelectedItem="{Binding NewShortcutButton3}" Margin="6,0,6,0" Height="34" VerticalContentAlignment="Center"/>
+                                                            <ComboBox Grid.Column="3" ItemsSource="{Binding AvailableButtons}" SelectedItem="{Binding NewShortcutButton4}" Margin="6,0,0,0" Height="34" VerticalContentAlignment="Center"/>
+                                                        </Grid>
+                                                    </StackPanel>
+                                                    
+                                                    <!-- Modo de Disparo -->
+                                                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                                        <TextBlock Text="Modo de Disparo:" Style="{StaticResource FieldLabelTextStyle}"/>
+                                                        <ComboBox ItemsSource="{Binding TriggerModes}" SelectedItem="{Binding NewShortcutTriggerMode}" HorizontalAlignment="Stretch" Height="34" VerticalContentAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Subseção 3: Ação / Resultado (O que faz) -->
+                                        <Border BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" 
+                                                BorderThickness="1" 
+                                                CornerRadius="8" 
+                                                Padding="14" 
+                                                Background="{DynamicResource ControlAltFillColorQuaternaryBrush}"
+                                                Margin="0,0,0,14">
+                                            <StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                                    <ui:SymbolIcon Symbol="Flash24" Foreground="{DynamicResource SystemAccentColorBrush}" FontSize="18" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="Ação / Resultado" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="2*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    
+                                                    <!-- Tipo de Ação -->
+                                                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                                        <TextBlock Text="Tipo de Ação:" Style="{StaticResource FieldLabelTextStyle}"/>
+                                                        <ComboBox ItemsSource="{Binding ActionTypes}" SelectedItem="{Binding NewShortcutActionType}" HorizontalAlignment="Stretch" Height="34" VerticalContentAlignment="Center"/>
+                                                    </StackPanel>
+                                                    
+                                                    <!-- Valor Condicional Inline -->
+                                                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                                        <!-- System Action -->
+                                                        <StackPanel>
+                                                            <StackPanel.Style>
+                                                                <Style TargetType="StackPanel">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding NewShortcutActionType}" Value="System">
+                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </StackPanel.Style>
+                                                            <TextBlock Text="Ação do Sistema:" Style="{StaticResource FieldLabelTextStyle}"/>
+                                                            <ComboBox ItemsSource="{Binding SystemActions}" SelectedItem="{Binding NewShortcutActionValue}" HorizontalAlignment="Stretch" Height="34" VerticalContentAlignment="Center"/>
+                                                        </StackPanel>
+                                                        <!-- RunExe -->
+                                                        <StackPanel>
+                                                            <StackPanel.Style>
+                                                                <Style TargetType="StackPanel">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding NewShortcutActionType}" Value="RunExe">
+                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </StackPanel.Style>
+                                                            <TextBlock Text="Caminho do Executável:" Style="{StaticResource FieldLabelTextStyle}"/>
+                                                            <ui:TextBox Text="{Binding NewShortcutCustomAction, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="C:\programa.exe" Height="34" VerticalContentAlignment="Center"/>
+                                                        </StackPanel>
+                                                        <!-- SendKeys -->
+                                                        <StackPanel>
+                                                            <StackPanel.Style>
+                                                                <Style TargetType="StackPanel">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding NewShortcutActionType}" Value="SendKeys">
+                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </StackPanel.Style>
+                                                            <TextBlock Text="Atalho de Teclado:" Style="{StaticResource FieldLabelTextStyle}"/>
+                                                            <ui:TextBox Text="{Binding NewShortcutCustomAction, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Ex: Ctrl+Alt+F4, Win+G" Height="34" VerticalContentAlignment="Center"/>
+                                                            <TextBlock Text="Formatos aceitos: Ctrl+Alt+F4, Win+G, Shift+A&#x0a;Modificadores: Ctrl (ou Control/Crtl), Alt, Shift, Win (ou Windows/Super/Meta/Winkey)&#x0a;Teclas comuns: A-Z, 0-9, F1-F12, Enter, Esc, Space, Tab, Backspace, Delete, Setas" 
+                                                                       FontSize="10.5" 
+                                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
+                                                                       TextWrapping="Wrap" 
+                                                                       Margin="0,4,0,0"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Botão de submissão -->
+                                        <ui:Button Content="＋ Adicionar Atalho" 
+                                                   Command="{Binding AddGamepadShortcutCommand}" 
+                                                   Appearance="Primary" 
+                                                   HorizontalAlignment="Right" 
+                                                   Padding="24,10"
+                                                   FontSize="13" 
+                                                   FontWeight="SemiBold"
+                                                   Height="38"/>
+                                    </StackPanel>
+                                </ui:Card>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- TAB 3: TECLADO -->
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Keyboard24" Margin="0,0,6,0" FontSize="16"/>
+                                <TextBlock Text="Teclado" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </TabItem.Header>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14,18,14,14">
+                            <StackPanel>
+                                <TextBlock Text="Controle HID do Teclado" Style="{StaticResource PageTitleTextStyle}" />
+                                <TextBlock Text="Selecione o teclado HID e envie diretamente os comandos de perfil e brilho, sem payloads Base64." 
+                                           Style="{StaticResource PageDescriptionTextStyle}"/>
+
+                                <ui:Card Padding="15" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,14">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="Dispositivo HID do teclado" FontSize="12" FontWeight="SemiBold" />
+                                                <TextBlock Text="Selecione o teclado para aplicar as configurações." FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Margin="0,2,0,0" />
+                                            </StackPanel>
+                                            <ui:Button Grid.Column="1" Content="Atualizar" Command="{Binding RefreshHidDevicesCommand}" VerticalAlignment="Center" />
+                                        </Grid>
+
+                                        <ComboBox ItemsSource="{Binding KeyboardDevices}"
+                                                  SelectedItem="{Binding SelectedKeyboardDevice}"
+                                                  DisplayMemberPath="DisplayName"
+                                                  HorizontalAlignment="Stretch"
+                                                  Margin="0,0,0,16"/>
+
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                                <TextBlock Text="Perfil" Style="{StaticResource FieldLabelTextStyle}" />
+                                                <ComboBox ItemsSource="{Binding AvailableKeyboardProfiles}" SelectedItem="{Binding SelectedKeyboardProfile}" HorizontalAlignment="Stretch" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                                                <TextBlock Text="Brilho (b0 a b4)" Style="{StaticResource FieldLabelTextStyle}" />
+                                                <ComboBox ItemsSource="{Binding AvailableBrightnessOptions}" SelectedItem="{Binding SelectedKeyboardBrightness}" HorizontalAlignment="Stretch" />
+                                            </StackPanel>
+                                            <ui:Button Grid.Column="2" Content="Aplicar" Command="{Binding ApplyManualKeyboardSettingsCommand}" Appearance="Primary" VerticalAlignment="Bottom" Height="36" Padding="20,0,20,0"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </ui:Card>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- TAB 4: MOUSE -->
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Cursor24" Margin="0,0,6,0" FontSize="16"/>
+                                <TextBlock Text="Mouse" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </TabItem.Header>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14,18,14,14">
+                            <StackPanel>
+                                <TextBlock Text="Mouse e Hardware HID" Style="{StaticResource PageTitleTextStyle}" />
+                                <TextBlock Text="Ajuste polling rate, DPI e sensibilidade do Windows diretamente pela interface HID." 
+                                           Style="{StaticResource PageDescriptionTextStyle}"/>
+
+                                <!-- Controle rápido em card unificado -->
+                                <Grid Margin="0,0,0,20">
+                                    <ui:Card Padding="18">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                                <ui:SymbolIcon Symbol="Settings24" Foreground="{DynamicResource SystemAccentColorBrush}" FontSize="20" Margin="0,0,8,0"/>
+                                                <TextBlock Text="Controle Manual do Mouse" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <TextBlock Text="Selecione os valores desejados e clique em Aplicar para configurar o hardware e a sensibilidade do Windows." 
+                                                       FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Margin="0,0,0,16"/>
+
+                                            <Grid Margin="0,0,0,16">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="Dispositivo do Mouse" FontSize="11" FontWeight="Medium" Margin="0,0,0,6"/>
+                                                    <ComboBox ItemsSource="{Binding MouseDevices}"
+                                                              SelectedItem="{Binding SelectedMouseDevice}"
+                                                              DisplayMemberPath="DisplayName"
+                                                              HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+                                                <ui:Button Grid.Column="1"
+                                                           Content="Atualizar"
+                                                           Command="{Binding RefreshHidDevicesCommand}"
+                                                           VerticalAlignment="Bottom"
+                                                           Height="36"
+                                                           Margin="12,0,0,0"/>
+                                            </Grid>
+                                            
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                
+                                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                                     <TextBlock Text="DPI do Mouse" FontSize="11" FontWeight="Medium" Margin="0,0,0,6"/>
+                                                     <ComboBox ItemsSource="{Binding AvailableDpiOptions}" SelectedItem="{Binding SelectedManualDpi}" HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+                                                
+                                                <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                                                     <TextBlock Text="Polling Rate" FontSize="11" FontWeight="Medium" Margin="0,0,0,6"/>
+                                                     <ComboBox ItemsSource="{Binding AvailablePollingOptions}" SelectedItem="{Binding SelectedManualPolling}" HorizontalAlignment="Stretch">
+                                                         <ComboBox.ItemTemplate>
+                                                             <DataTemplate>
+                                                                 <TextBlock Text="{Binding StringFormat={}{0} Hz}"/>
+                                                             </DataTemplate>
+                                                         </ComboBox.ItemTemplate>
+                                                     </ComboBox>
+                                                </StackPanel>
+                                                
+                                                <StackPanel Grid.Column="2" Margin="0,0,12,0">
+                                                     <TextBlock Text="Velocidade no Windows" FontSize="11" FontWeight="Medium" Margin="0,0,0,6"/>
+                                                     <ComboBox ItemsSource="{Binding AvailableSpeedOptions}" SelectedItem="{Binding SelectedManualSpeed}" HorizontalAlignment="Stretch">
+                                                         <ComboBox.ItemTemplate>
+                                                             <DataTemplate>
+                                                                 <TextBlock Text="{Binding StringFormat={}{0} / 20}"/>
+                                                             </DataTemplate>
+                                                         </ComboBox.ItemTemplate>
+                                                     </ComboBox>
+                                                </StackPanel>
+                                                
+                                                <ui:Button Grid.Column="3" Content="Aplicar" Command="{Binding ApplyManualMouseSettingsCommand}" 
+                                                           Appearance="Primary" VerticalAlignment="Bottom" Height="36" Padding="20,0,20,0"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </ui:Card>
+                                </Grid>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- TAB 5: AUTOMAÇÃO -->
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Settings24" Margin="0,0,6,0" FontSize="16"/>
+                                <TextBlock Text="Automação" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </TabItem.Header>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14,18,14,14">
+                            <StackPanel>
+                                <TextBlock Text="Configuração das Regras do Watchdog" Style="{StaticResource PageTitleTextStyle}" />
+                                <TextBlock Text="Parametrizar e ativar/desativar as tarefas em segundo plano para o CS2 e outros jogos competitivos." 
+                                           Style="{StaticResource PageDescriptionTextStyle}"/>
+
+                                <ui:Card Padding="18" Margin="0,0,0,18">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="38"
+                                                Height="38"
+                                                CornerRadius="10"
+                                                Background="{DynamicResource ControlAltFillColorSecondaryBrush}"
+                                                Margin="0,0,14,0">
+                                            <ui:SymbolIcon Symbol="Power24"
+                                                           Foreground="{DynamicResource SystemAccentColorBrush}"
+                                                           FontSize="20"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="Iniciar serviço em segundo plano com o Windows" FontSize="13" FontWeight="SemiBold" />
+                                            <TextBlock Text="Registra o TutzApp na inicialização usando --background, mantendo o ícone na bandeja sem abrir o painel." FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Margin="0,3,0,0" TextWrapping="Wrap" />
+                                        </StackPanel>
+                                        <ui:ToggleSwitch Grid.Column="2"
+                                                         IsChecked="{Binding IsAutoStartEnabled}"
+                                                         VerticalAlignment="Center"
+                                                         Margin="16,0,0,0" />
+                                    </Grid>
+                                </ui:Card>
+
+                                <ui:Card Padding="15" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,15">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="180" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="Intervalo de Double Press do Gamepad" FontSize="12" FontWeight="SemiBold" />
+                                                <TextBlock Text="Tempo máximo entre dois cliques para disparar atalhos DoublePress. Valores são limitados entre 120ms e 1000ms automaticamente." FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Margin="0,2,0,0" TextWrapping="Wrap" />
+                                            </StackPanel>
+                                            <ui:NumberBox Grid.Column="1"
+                                                          Value="{Binding DoublePressIntervalMs, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                          Minimum="120"
+                                                          Maximum="1000"
+                                                          SmallChange="25"
+                                                          LargeChange="100"
+                                                          SpinButtonPlacementMode="Inline"
+                                                          HorizontalAlignment="Stretch"
+                                                          VerticalAlignment="Center"
+                                                          Margin="16,0,0,0" />
+                                        </Grid>
+
+                                        <Separator Background="{DynamicResource CardStrokeColorDefaultBrush}" Margin="0,0,0,15"/>
+
+                                        <!-- Regra 1 -->
+                                        <Grid Margin="0,0,0,15">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="Troca Automática de Resolução (CS2)" FontSize="12" FontWeight="SemiBold" />
+                                                <TextBlock Text="Muda para 1920x1080@144Hz ao abrir o CS2 e restaura a resolução anterior ao sair." FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Margin="0,2,0,0" />
+                                            </StackPanel>
+                                            <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoResolutionSwitch}" VerticalAlignment="Center" />
+                                        </Grid>
+
+                                        <Separator Background="{DynamicResource CardStrokeColorDefaultBrush}" Margin="0,0,0,15"/>
+
+                                        <!-- Regra 2 -->
+                                        <Grid Margin="0,0,0,15">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="Troca Automática de Perfil de Hardware (Teclado/Mouse)" FontSize="12" FontWeight="SemiBold" />
+                                                <TextBlock Text="Troca as configurações do mouse e o perfil do teclado automaticamente ao detectar jogos abertos." FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" Margin="0,2,0,0" />
+                                            </StackPanel>
+                                            <ui:ToggleSwitch Grid.Column="1" IsChecked="{Binding AutoGameProfileSwitch}" x:Name="AutoProfileSwitch" VerticalAlignment="Center" />
+                                        </Grid>
+
+                                        <!-- Sub-painel de configurações dos perfis de automação -->
+                                        <StackPanel Margin="0,0,0,15" Visibility="{Binding ElementName=AutoProfileSwitch, Path=IsChecked, Converter={StaticResource BoolToVisibility}}">
+                                            <Grid Margin="0,5,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Perfil de Jogo -->
+                                                <Border Grid.Column="0" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,6,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+                                                    <StackPanel>
+                                                        <TextBlock Text="Perfil de Jogo (Ativo durante o jogo)" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="{DynamicResource SystemAccentColorBrush}"/>
+                                                        
+                                                        <TextBlock Text="DPI do Mouse" FontSize="10" FontWeight="Medium" Margin="0,0,0,4"/>
+                                                        <ComboBox ItemsSource="{Binding AvailableDpiOptions}" SelectedItem="{Binding AutoGameDpi}" HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+
+                                                        <TextBlock Text="Polling Rate" FontSize="10" FontWeight="Medium" Margin="0,0,0,4"/>
+                                                        <ComboBox ItemsSource="{Binding AvailablePollingOptions}" SelectedItem="{Binding AutoGamePolling}" HorizontalAlignment="Stretch" Margin="0,0,0,8">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock Text="{Binding StringFormat={}{0} Hz}"/>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+
+                                                        <TextBlock Text="Velocidade no Windows" FontSize="10" FontWeight="Medium" Margin="0,0,0,4"/>
+                                                        <ComboBox ItemsSource="{Binding AvailableSpeedOptions}" SelectedItem="{Binding AutoGameSpeed}" HorizontalAlignment="Stretch" Margin="0,0,0,8">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock Text="{Binding StringFormat={}{0} / 20}"/>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+
+                                                        <TextBlock Text="Brilho do Teclado" FontSize="10" FontWeight="Medium" Margin="0,0,0,4"/>
+                                                        <ComboBox ItemsSource="{Binding AvailableBrightnessOptions}" SelectedItem="{Binding AutoGameKeyboardBrightness}" HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+
+                                                        <TextBlock Text="Perfil do Teclado" FontSize="10" FontWeight="Medium" Margin="0,0,0,4"/>
+                                                        <ComboBox ItemsSource="{Binding AvailableKeyboardProfiles}" SelectedItem="{Binding AutoGameKeyboardProfile}" HorizontalAlignment="Stretch"/>
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <!-- Perfil Normal -->
+                                                <Border Grid.Column="1" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="6,0,0,0" Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+                                                    <StackPanel>
+                                                        <TextBlock Text="Perfil Normal (Fora dos jogos)" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                                                        
+                                                        <TextBlock Text="DPI do Mouse" FontSize="10" FontWeight="Medium" Margin="0,0,0,4"/>
+                                                        <ComboBox ItemsSource="{Binding AvailableDpiOptions}" SelectedItem="{Binding AutoNormalDpi}" HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+
+                                                        <TextBlock Text="Polling Rate" FontSize="10" FontWeight="Medium" Margin="0,0,0,4"/>
+                                                        <ComboBox ItemsSource="{Binding AvailablePollingOptions}" SelectedItem="{Binding AutoNormalPolling}" HorizontalAlignment="Stretch" Margin="0,0,0,8">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock Text="{Binding StringFormat={}{0} Hz}"/>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+
+                                                        <TextBlock Text="Velocidade no Windows" FontSize="10" FontWeight="Medium" Margin="0,0,0,4"/>
+                                                        <ComboBox ItemsSource="{Binding AvailableSpeedOptions}" SelectedItem="{Binding AutoNormalSpeed}" HorizontalAlignment="Stretch" Margin="0,0,0,8">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock Text="{Binding StringFormat={}{0} / 20}"/>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+
+                                                        <TextBlock Text="Brilho do Teclado" FontSize="10" FontWeight="Medium" Margin="0,0,0,4"/>
+                                                        <ComboBox ItemsSource="{Binding AvailableBrightnessOptions}" SelectedItem="{Binding AutoNormalKeyboardBrightness}" HorizontalAlignment="Stretch" Margin="0,0,0,8"/>
+
+                                                        <TextBlock Text="Perfil do Teclado" FontSize="10" FontWeight="Medium" Margin="0,0,0,4"/>
+                                                        <ComboBox ItemsSource="{Binding AvailableKeyboardProfiles}" SelectedItem="{Binding AutoNormalKeyboardProfile}" HorizontalAlignment="Stretch"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
+                                        </StackPanel>
+
+                                    </StackPanel>
+                                </ui:Card>
+
+                                <TextBlock Text="Executáveis de Jogos Monitorados" Style="{StaticResource SectionTitleTextStyle}"/>
+                                
+                                <ui:Card Padding="15" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Insira a lista de executáveis de jogos monitorados (separados por vírgula):" Style="{StaticResource FieldLabelTextStyle}"/>
+                                        <ui:TextBox Text="{Binding MonitoredGamesText, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" AcceptsReturn="True" Height="60" VerticalScrollBarVisibility="Auto" Margin="0,0,0,15" />
+                                        
+                                    </StackPanel>
+                                </ui:Card>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- TAB 5: GERAL & LOGS -->
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Clipboard24" Margin="0,0,6,0" FontSize="16"/>
+                                <TextBlock Text="Logs &amp; Geral" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </TabItem.Header>
+                        <Grid Margin="14,18,14,14">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="Depuração e Integrações Globais" Style="{StaticResource PageTitleTextStyle}" />
+                            <TextBlock Grid.Row="1" Text="Monitore as atividades internas em tempo real da aplicação para fins de depuração física." 
+                                       Style="{StaticResource PageDescriptionTextStyle}"/>
+
+                            <!-- Histórico de logs -->
+                            <Grid Grid.Row="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="Registro de Log de Eventos:" Style="{StaticResource FieldLabelTextStyle}"/>
+                                <Border Grid.Row="1" 
+                                        CornerRadius="8" 
+                                        BorderThickness="1" 
+                                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                        Background="{DynamicResource ControlAltFillColorTertiaryBrush}">
+                                    <ListView ItemsSource="{Binding Logs}" 
+                                              FontSize="11" 
+                                              FontFamily="Consolas"
+                                              BorderThickness="0" 
+                                              Background="Transparent"
+                                              Padding="0,0,16,0">
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="Padding" Value="6,4" />
+                                                <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                <Setter Property="Focusable" Value="False" />
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
+                                    </ListView>
+                                </Border>
+                            </Grid>
+
+                            <ui:Button Grid.Row="3" 
+                                       Content="Limpar Histórico de Logs" 
+                                       Command="{Binding ClearLogsCommand}" 
+                                       Appearance="Secondary" 
+                                       HorizontalAlignment="Left"
+                                       Margin="0,15,0,0" />
+                        </Grid>
+                    </TabItem>
+                    </TabControl>
+            </Border>
+        </Grid>
+    </Grid>
+</ui:FluentWindow>
