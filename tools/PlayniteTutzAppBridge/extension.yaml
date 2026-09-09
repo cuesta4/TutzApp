@@ -1,0 +1,10 @@
+Id: PlayniteTutzAppBridge_7a8f6d20-b49e-4c31-9f23-018d9f52a7c4
+Name: TutzApp Focus Bridge
+Author: TutzApp
+Version: 1.0.0
+Module: PlayniteTutzAppBridge.dll
+Type: GenericPlugin
+Description: Seamless foreground focus delegation and game lifecycle integration for TutzApp.
+Links:
+    - Name: Local
+      Url: https://github.com

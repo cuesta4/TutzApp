@@ -1,4 +1,4 @@
 <Solution>
   <Project Path="TutzApp.csproj" />
-  <Project Path="TutzApp.Tests/TutzApp.Tests.csproj" />
+  <Project Path="tests/TutzApp.Tests/TutzApp.Tests.csproj" />
 </Solution>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
@@ -32,12 +32,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="TutzApp.Tests\**" />
-    <Compile Remove="scratch\**" />
-    <Page Remove="TutzApp.Tests\**" />
-    <Page Remove="scratch\**" />
-    <None Remove="TutzApp.Tests\**" />
-    <None Remove="scratch\**" />
+    <!--
+      Ignore the pre-reorganization root folders if a ZIP is extracted over an
+      older checkout. This prevents stale XAML/BAML (especially the shortcut
+      overlays) and duplicate service/model sources from entering the build.
+    -->
+    <Compile Remove="tests\**;scratch\**;tools\**;Common\**;Models\**;Services\**;ViewModels\**;Views\**;Packaging\**;ShellExtension\**;TutzApp.Tests\**;Tools\**" />
+    <Page Remove="tests\**;scratch\**;tools\**;Common\**;Models\**;Services\**;ViewModels\**;Views\**;Packaging\**;ShellExtension\**;TutzApp.Tests\**;Tools\**" />
+    <None Remove="tests\**;scratch\**;tools\**;Common\**;Models\**;Services\**;ViewModels\**;Views\**;Packaging\**;ShellExtension\**;TutzApp.Tests\**;Tools\**" />
   </ItemGroup>
 
 </Project>

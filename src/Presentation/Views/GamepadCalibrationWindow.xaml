@@ -1,0 +1,40 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="TutzApp.Views.GamepadCalibrationWindow" Title="TutzApp - Calibração de Gamepad" Height="610" Width="560" WindowStyle="None" AllowsTransparency="True" Background="Transparent" Topmost="True" ShowInTaskbar="False" WindowStartupLocation="CenterScreen" KeyDown="Window_KeyDown" FontFamily="Segoe UI Variable Text" Foreground="{DynamicResource TextFillColorPrimaryBrush}" UseLayoutRounding="True" SnapsToDevicePixels="True">
+  <Border Background="#F2101010" BorderBrush="#33FFFFFF" BorderThickness="1.5" CornerRadius="16" Padding="22">
+    <Border.Effect>
+      <DropShadowEffect BlurRadius="25" Color="Black" Opacity="0.55" ShadowDepth="0"/>
+    </Border.Effect>
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <StackPanel Grid.Row="0" Margin="0,0,0,18">
+        <TextBlock Text="PROJETO TUTZ" Foreground="#80FFFFFF" FontSize="9" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <TextBlock Text="Calibração HID do Gamepad" Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontSize="19" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+      </StackPanel>
+      <StackPanel Grid.Row="1" VerticalAlignment="Center">
+        <TextBlock x:Name="StepTitleText" Text="Preparando..." Foreground="#00E5FF" FontSize="22" FontWeight="Bold" TextAlignment="Center" TextWrapping="Wrap"/>
+        <TextBlock x:Name="InstructionText" Text="Aguarde." Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontSize="14" TextAlignment="Center" TextWrapping="Wrap" Margin="0,18,0,0"/>
+        <Border Background="#1500E5FF" BorderBrush="#3300E5FF" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,22,0,0">
+          <TextBlock x:Name="ResultText" Text="" Foreground="#DFFFFFFF" FontFamily="Consolas" FontSize="12" TextAlignment="Left" TextWrapping="Wrap"/>
+        </Border>
+        <Border x:Name="AxisOptionsPanel" Visibility="Collapsed" Background="#10FFFFFF" BorderBrush="#22FFFFFF" BorderThickness="1" CornerRadius="8" Padding="10" Margin="0,12,0,0">
+          <StackPanel>
+            <TextBlock Text="Opções deste gamepad" Foreground="#BFFFFFFF" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+            <CheckBox x:Name="InvertLeftYCheckBox" Content="Inverter eixo Y do analógico esquerdo" Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontSize="12" Margin="0,2,0,0" Checked="AxisInvertCheckBox_Changed" Unchecked="AxisInvertCheckBox_Changed"/>
+            <CheckBox x:Name="InvertRightYCheckBox" Content="Inverter eixo Y do analógico direito / scroll" Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontSize="12" Margin="0,6,0,0" Checked="AxisInvertCheckBox_Changed" Unchecked="AxisInvertCheckBox_Changed"/>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+      <Grid Grid.Row="2" Margin="0,18,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="FooterText" Text="Enter confirma baseline | Esc cancela" Foreground="#66FFFFFF" FontSize="11" VerticalAlignment="Center"/>
+        <Button Grid.Column="1" Content="Fechar" Click="Close_Click" Padding="14,6"/>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

@@ -1,0 +1,68 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml" x:Class="TutzApp.Views.BorderlessAppDialogWindow" Title="TutzApp - NoMoreBorder" Height="486" Width="440" WindowStyle="None" AllowsTransparency="True" Background="Transparent" ShowInTaskbar="False" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" KeyDown="Window_KeyDown" FontFamily="Segoe UI Variable Text" Foreground="{DynamicResource TextFillColorPrimaryBrush}" UseLayoutRounding="True" SnapsToDevicePixels="True">
+  <Border Background="#F2101010" BorderBrush="#33FFFFFF" BorderThickness="1.5" CornerRadius="16" Padding="22">
+    <Border.Effect>
+      <DropShadowEffect BlurRadius="25" Color="Black" Opacity="0.55" ShadowDepth="0"/>
+    </Border.Effect>
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <StackPanel Grid.Row="0" Margin="0,0,0,16">
+        <TextBlock Text="PROJETO TUTZ" Foreground="#80FFFFFF" FontSize="9" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,5,0,0">
+          <ui:SymbolIcon Symbol="FullScreenMaximize24" Foreground="#00E5FF" FontSize="16" Margin="0,0,7,0" VerticalAlignment="Center"/>
+          <TextBlock Text="NoMoreBorder" Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontSize="17" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        </StackPanel>
+        <TextBlock x:Name="ExePathText" Text="" Foreground="#66FFFFFF" FontSize="10.5" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center" Margin="0,5,0,0" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+      </StackPanel>
+      <StackPanel Grid.Row="1">
+        <TextBlock Text="Nome do aplicativo" Foreground="#BFFFFFFF" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+        <ui:TextBox x:Name="AppNameBox" Height="36" MaxLength="64"/>
+        <TextBlock Text="Display" Foreground="#BFFFFFFF" FontSize="11" FontWeight="SemiBold" Margin="0,12,0,6"/>
+        <ComboBox x:Name="MonitorBox" Height="36" DisplayMemberPath="Label" SelectionChanged="MonitorBox_SelectionChanged"/>
+        <Grid Margin="0,12,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Grid.Column="0">
+            <TextBlock Text="X Offset" Foreground="#BFFFFFFF" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+            <ui:NumberBox x:Name="XOffsetBox" Minimum="-100000" Maximum="100000" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" Height="36"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2">
+            <TextBlock Text="Y Offset" Foreground="#BFFFFFFF" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+            <ui:NumberBox x:Name="YOffsetBox" Minimum="-100000" Maximum="100000" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" Height="36"/>
+          </StackPanel>
+        </Grid>
+        <Grid Margin="0,12,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Grid.Column="0">
+            <TextBlock Text="Width" Foreground="#BFFFFFFF" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+            <ui:NumberBox x:Name="WidthBox" Minimum="0" Maximum="20000" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" Height="36" LostFocus="ResolutionField_LostFocus"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2">
+            <TextBlock Text="Height" Foreground="#BFFFFFFF" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,6"/>
+            <ui:NumberBox x:Name="HeightBox" Minimum="0" Maximum="20000" SmallChange="1" LargeChange="10" SpinButtonPlacementMode="Compact" Height="36" LostFocus="ResolutionField_LostFocus"/>
+          </StackPanel>
+        </Grid>
+        <TextBlock Text="0 em Width/Height usa a resolução do display escolhido. A janela é mantida sem bordas automaticamente enquanto o app estiver rodando." Foreground="#66FFFFFF" FontSize="10.5" TextWrapping="Wrap" Margin="0,12,0,0"/>
+      </StackPanel>
+      <Grid Grid.Row="2" Margin="0,16,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <ui:Button Grid.Column="1" Content="Cancelar" Appearance="Secondary" Padding="16,0" Height="34" Margin="0,0,8,0" Click="Cancel_Click"/>
+        <ui:Button Grid.Column="2" x:Name="ConfirmButton" Content="Adicionar" Appearance="Primary" Padding="16,0" Height="34" Click="Confirm_Click"/>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

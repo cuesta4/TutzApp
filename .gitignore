@@ -1,6 +1,7 @@
 bin/
 obj/
 publish/
+publish-temp/
 dist/
 
 .vs/
@@ -21,3 +22,29 @@ admin_helper_err.txt
 *.trx
 *.coverage
 *.coveragexml
+
+# Memory, diagnostics and temporary files
+MEMORY.md
+crash_log.txt
+tutzapp_power_wake*
+*.bak
+*.pext
+APPLY-THIS-OVERLAY.txt
+README.txt
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.jsonl
+
+# Windows 11 modern Explorer integration build artifacts
+src/Features/ContextMenu/Native/bin/
+src/Features/ContextMenu/Native/obj/
+build/ContextMenu/package-layout/
+build/ContextMenu/package-open-verification/
+build/ContextMenu/logs/
+build/ContextMenu/*.msix
+ShellIntegration/*.dll
+ShellIntegration/*.msix
+ShellIntegration/*.cer

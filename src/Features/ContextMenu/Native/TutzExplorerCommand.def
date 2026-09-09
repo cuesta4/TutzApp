@@ -1,0 +1,4 @@
+LIBRARY "TutzExplorerCommand"
+EXPORTS
+    DllCanUnloadNow PRIVATE
+    DllGetClassObject PRIVATE
