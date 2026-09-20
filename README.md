@@ -33,3 +33,16 @@ dotnet test tests\TutzApp.Tests\TutzApp.Tests.csproj -c Release
 ```
 
 Architecture, technical decisions, and validation notes are in [`docs/`](docs/).
+
+## License
+
+TutzApp is released under the [MIT License](LICENSE).
+
+## Credits
+
+The following open-source projects were consulted as references during development:
+
+- [`rtss-cli`](https://github.com/xanderfrangos/rtss-cli) — RTSS command-line and OSD integration reference.
+- [`NoMoreBorder`](https://github.com/invcble/NoMoreBorder) — borderless-window behavior and multi-monitor positioning reference.
+
+These projects are credited as references; their source code is not bundled as a TutzApp dependency.
