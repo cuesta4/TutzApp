@@ -568,6 +568,25 @@ namespace TutzApp
                 return true;
             }
 
+            if (command.Equals("super-f4", StringComparison.OrdinalIgnoreCase) ||
+                command.Equals("force-kill-foreground", StringComparison.OrdinalIgnoreCase))
+            {
+                sysControl.LogDebug("CommandPipe: solicitação SuperF4 recebida de um cliente externo.");
+                ThreadPool.QueueUserWorkItem(_ =>
+                {
+                    try
+                    {
+                        bool success = sysControl.ForceKillForegroundApp();
+                        sysControl.LogDebug($"CommandPipe: SuperF4 externo concluído. Sucesso={success}.");
+                    }
+                    catch (Exception ex)
+                    {
+                        sysControl.LogDebug($"CommandPipe: falha protegida no SuperF4 externo: {ex}");
+                    }
+                });
+                return true;
+            }
+
             if (command.Equals("hide-gamepad-help", StringComparison.OrdinalIgnoreCase))
             {
                 if (sysControl.IsGamepadShortcutOverlayVisible)

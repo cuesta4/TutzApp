@@ -12,10 +12,13 @@ $runtime = 'win-x64'
 $publishDirectory = Join-Path $root 'publish-fast'
 $publishedExecutable = Join-Path $publishDirectory 'TutzApp.exe'
 $outputExecutable = Join-Path $root 'TutzApp.exe'
-$ewdkEnvironment = 'D:\CODING\SDKs\EWDK\EWDK-LLVM.env'
+$ewdkEnvironment = $env:TUTZ_EWDK_ENV
+if ([string]::IsNullOrWhiteSpace($ewdkEnvironment)) {
+    $ewdkEnvironment = Join-Path $root 'EWDK-LLVM.env'
+}
 
 if (-not (Test-Path -LiteralPath $ewdkEnvironment -PathType Leaf)) {
-    throw "EWDK environment file not found: $ewdkEnvironment"
+    throw "EWDK environment file not found: $ewdkEnvironment. Set TUTZ_EWDK_ENV to the local EWDK-LLVM.env path."
 }
 
 foreach ($line in [System.IO.File]::ReadLines($ewdkEnvironment)) {

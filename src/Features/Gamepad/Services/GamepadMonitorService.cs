@@ -16,6 +16,11 @@ namespace TutzApp.Services
     {
         private static readonly IntPtr SimulatedKeySignature = new IntPtr(0x12345);
         private const double MouseModeBaseMaxPixelsPerSecond = 800;
+        private const double MouseModeTimedAccelerationThreshold = 0.95;
+        private const double MouseModeTimedAccelerationDurationSeconds = 0.5;
+        private const double MouseModeTimedAccelerationMaxMultiplier = 1.5;
+        private const ushort VirtualKeyLeftControl = 0xA2;
+        private const ushort VirtualKeyLeftShift = 0xA0;
         private readonly ISystemControlService _sysControl;
         private readonly bool _forceKillOnly;
         private readonly RawInputGamepadStateProvider _rawInputProvider;
@@ -74,10 +79,15 @@ namespace TutzApp.Services
         private bool _previousRightTriggerDown = false;
         private bool _leftMouseDown = false;
         private bool _rightMouseDown = false;
+        private bool _ctrlModifierDown = false;
+        private bool _shiftModifierDown = false;
         private CancellationTokenSource? _mouseModeLoopCancellation;
         private double _mouseResidualX = 0;
         private double _mouseResidualY = 0;
         private double _wheelResidual = 0;
+        private double _mouseHighZoneElapsed = 0;
+        private double _mouseHighZoneDirectionX = 0;
+        private double _mouseHighZoneDirectionY = 0;
 
         // Timestamps para duplo clique e hold genérico (usando Environment.TickCount64)
         private long _lastBackPress = 0;
@@ -911,6 +921,11 @@ namespace TutzApp.Services
             ushort pressedThisFrame = (ushort)(buttons & ~_prevButtons);
             ushort releasedThisFrame = (ushort)(~buttons & _prevButtons);
 
+            if (_mouseModeEnabled && (pressedThisFrame & NativeMethods.XINPUT_GAMEPAD_RIGHT_THUMB) != 0)
+            {
+                OpenClipboardHistory();
+            }
+
             if (_taskViewVkMappingRequested &&
                 (pressedThisFrame & (NativeMethods.XINPUT_GAMEPAD_A | NativeMethods.XINPUT_GAMEPAD_B)) != 0)
             {
@@ -948,6 +963,13 @@ namespace TutzApp.Services
             {
                 var shortcut = runtimeShortcut.Shortcut;
                 ushort comboMask = runtimeShortcut.ComboMask;
+
+                // R3 is the clipboard-history button while mouse mode is active;
+                // keep the normal screenshot shortcut available everywhere else.
+                if (_mouseModeEnabled && comboMask == NativeMethods.XINPUT_GAMEPAD_RIGHT_THUMB)
+                {
+                    continue;
+                }
 
                 bool allPressed = (buttons & comboMask) == comboMask;
                 bool anyNewPress = (pressedThisFrame & comboMask) != 0;
@@ -1215,6 +1237,14 @@ namespace TutzApp.Services
 
         private void ResetButtonTrackingState()
         {
+            if (_mouseModeEnabled)
+            {
+                ReleaseMouseModeButtons();
+                _previousMouseModeButtons = 0;
+                _previousLeftTriggerDown = false;
+                _previousRightTriggerDown = false;
+            }
+
             _prevButtons = 0;
             _backWasUsedAsModifier = false;
             _backPressInProgress = false;
@@ -1502,6 +1532,7 @@ namespace TutzApp.Services
             _mouseResidualX = 0;
             _mouseResidualY = 0;
             _wheelResidual = 0;
+            ResetMouseTimedAcceleration();
 
             if (enabled)
             {
@@ -1567,6 +1598,7 @@ namespace TutzApp.Services
             }
 
             var (x, y) = ApplyRadialStickCurve(state.LeftX, state.LeftY, deadZone: 0.0, exponent: 1.0);
+            (x, y) = ApplyMouseTimedAcceleration(x, y, dt);
             if (x == 0 && y == 0)
             {
                 _mouseResidualX = 0;
@@ -1574,7 +1606,7 @@ namespace TutzApp.Services
                 return;
             }
 
-            // Modelo v6 testado: linear, sem suavização, dt clampado e resíduo zerado na troca de sinal.
+            // Base linear preservada; a aceleração temporal só entra acima de 95% do analógico.
             if (x != 0 && _mouseResidualX != 0 && Math.Sign(x) != Math.Sign(_mouseResidualX))
             {
                 _mouseResidualX = 0;
@@ -1597,6 +1629,46 @@ namespace TutzApp.Services
             {
                 SendMouseInput(NativeMethods.MOUSEEVENTF_MOVE, dx, dy, 0);
             }
+        }
+
+        private (double x, double y) ApplyMouseTimedAcceleration(double x, double y, double dt)
+        {
+            double magnitude = Math.Sqrt(x * x + y * y);
+            if (magnitude < MouseModeTimedAccelerationThreshold || magnitude == 0)
+            {
+                ResetMouseTimedAcceleration();
+                return (x, y);
+            }
+
+            double directionX = x / magnitude;
+            double directionY = y / magnitude;
+            if (_mouseHighZoneElapsed > 0 &&
+                directionX * _mouseHighZoneDirectionX + directionY * _mouseHighZoneDirectionY <= 0)
+            {
+                _mouseHighZoneElapsed = 0;
+            }
+
+            _mouseHighZoneDirectionX = directionX;
+            _mouseHighZoneDirectionY = directionY;
+            _mouseHighZoneElapsed = Math.Min(
+                MouseModeTimedAccelerationDurationSeconds,
+                _mouseHighZoneElapsed + dt);
+
+            double progress = Math.Clamp(
+                _mouseHighZoneElapsed / MouseModeTimedAccelerationDurationSeconds,
+                0,
+                1);
+            double eased = progress * progress * progress;
+            double multiplier = 1 +
+                (MouseModeTimedAccelerationMaxMultiplier - 1) * eased;
+            return (x * multiplier, y * multiplier);
+        }
+
+        private void ResetMouseTimedAcceleration()
+        {
+            _mouseHighZoneElapsed = 0;
+            _mouseHighZoneDirectionX = 0;
+            _mouseHighZoneDirectionY = 0;
         }
 
         private void ApplyMouseWheel(GamepadInputState state, double dt)
@@ -1637,6 +1709,23 @@ namespace TutzApp.Services
             ushort buttons = state.Buttons;
             ushort pressed = (ushort)(buttons & ~_previousMouseModeButtons);
 
+            bool ctrlModifierDown = (buttons & NativeMethods.XINPUT_GAMEPAD_LEFT_SHOULDER) != 0;
+            bool shiftModifierDown = (buttons & NativeMethods.XINPUT_GAMEPAD_RIGHT_SHOULDER) != 0;
+
+            // Press modifiers before a simultaneous mouse-button press so the
+            // click is delivered with Ctrl/Shift already held.
+            if (ctrlModifierDown && !_ctrlModifierDown)
+            {
+                SendKeyboardKeyState(true, VirtualKeyLeftControl);
+                _ctrlModifierDown = true;
+            }
+
+            if (shiftModifierDown && !_shiftModifierDown)
+            {
+                SendKeyboardKeyState(true, VirtualKeyLeftShift);
+                _shiftModifierDown = true;
+            }
+
             UpdateMouseButton(
                 (buttons & NativeMethods.XINPUT_GAMEPAD_A) != 0,
                 ref _leftMouseDown,
@@ -1650,6 +1739,20 @@ namespace TutzApp.Services
                 NativeMethods.MOUSEEVENTF_RIGHTDOWN,
                 NativeMethods.MOUSEEVENTF_RIGHTUP,
                 0);
+
+            // Release modifiers after the mouse button so the click keeps its
+            // modifier for the full down/up pair.
+            if (!ctrlModifierDown && _ctrlModifierDown)
+            {
+                SendKeyboardKeyState(false, VirtualKeyLeftControl);
+                _ctrlModifierDown = false;
+            }
+
+            if (!shiftModifierDown && _shiftModifierDown)
+            {
+                SendKeyboardKeyState(false, VirtualKeyLeftShift);
+                _shiftModifierDown = false;
+            }
 
             bool leftTriggerDown = state.LeftTrigger >= 0.35;
             bool rightTriggerDown = state.RightTrigger >= 0.35;
@@ -1707,6 +1810,18 @@ namespace TutzApp.Services
             {
                 SendMouseInput(NativeMethods.MOUSEEVENTF_RIGHTUP, 0, 0, 0);
                 _rightMouseDown = false;
+            }
+
+            if (_ctrlModifierDown)
+            {
+                SendKeyboardKeyState(false, VirtualKeyLeftControl);
+                _ctrlModifierDown = false;
+            }
+
+            if (_shiftModifierDown)
+            {
+                SendKeyboardKeyState(false, VirtualKeyLeftShift);
+                _shiftModifierDown = false;
             }
         }
 
@@ -1876,6 +1991,12 @@ namespace TutzApp.Services
             }
         }
 
+        private void OpenClipboardHistory()
+        {
+            bool sent = SendScanCodeChord("Win+V", (0x5B, true), (0x2F, false));
+            _sysControl.LogDebug($"GamepadMouseMode: R3 -> histórico da área de transferência. SendInputSuccess={sent}");
+        }
+
         private bool SendScanCodeChord(string label, params (ushort scanCode, bool extended)[] keys)
         {
             if (keys.Length == 0)
@@ -1986,6 +2107,28 @@ namespace TutzApp.Services
             catch (Exception ex)
             {
                 _sysControl.LogDebug($"Exception ao simular entrada de tecla: {ex.Message}");
+            }
+        }
+
+        private void SendKeyboardKeyState(bool down, ushort vkCode)
+        {
+            try
+            {
+                NativeMethods.INPUT[] inputs = new NativeMethods.INPUT[1];
+                inputs[0].type = NativeMethods.INPUT_KEYBOARD;
+                inputs[0].U.ki.wVk = vkCode;
+                inputs[0].U.ki.dwFlags = down ? 0u : NativeMethods.KEYEVENTF_KEYUP;
+                inputs[0].U.ki.dwExtraInfo = SimulatedKeySignature;
+
+                uint sent = NativeMethods.SendInput(1, inputs, Marshal.SizeOf(typeof(NativeMethods.INPUT)));
+                if (sent != 1)
+                {
+                    _sysControl.LogDebug($"GamepadMouseMode: SendInput teclado falhou. vk=0x{vkCode:X2}, down={down}, Win32Error={Marshal.GetLastWin32Error()}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _sysControl.LogDebug($"GamepadMouseMode: erro ao alterar modificador de teclado: {ex.Message}");
             }
         }
     }

@@ -17,6 +17,7 @@ dist/
 TestResults/
 DebugLog.txt
 appsettings.json
+EWDK-LLVM.env
 admin_helper_err.txt
 *_err.txt
 *.trx

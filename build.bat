@@ -111,8 +111,6 @@ if defined TUTZ_ZIG set "ZIG_EXE=%TUTZ_ZIG%"
 if not defined ZIG_EXE (
     for /f "delims=" %%I in ('where zig.exe 2^>nul') do if not defined ZIG_EXE set "ZIG_EXE=%%I"
 )
-if not defined ZIG_EXE if exist "D:\CODING\SDKs\zig\zig.exe" set "ZIG_EXE=D:\CODING\SDKs\zig\zig.exe"
-if not defined ZIG_EXE if exist "D:\CODING\SDKs\Zig\zig.exe" set "ZIG_EXE=D:\CODING\SDKs\Zig\zig.exe"
 if not defined ZIG_EXE (
     echo ERROR: zig.exe was not found in PATH.
     echo Define it explicitly with:

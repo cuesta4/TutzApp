@@ -72,8 +72,6 @@ function Resolve-ZigExecutable {
         }
     }
 
-    $candidates.Add('D:\CODING\SDKs\zig\zig.exe')
-    $candidates.Add('D:\CODING\SDKs\Zig\zig.exe')
     $candidates.Add((Join-Path $env:USERPROFILE 'scoop\apps\zig\current\zig.exe'))
     $candidates.Add((Join-Path $env:LOCALAPPDATA 'Programs\zig\zig.exe'))
     $candidates.Add((Join-Path $env:ProgramData 'chocolatey\bin\zig.exe'))
@@ -140,7 +138,9 @@ function Find-WindowsSdkTool {
     if (-not [string]::IsNullOrWhiteSpace(${env:ProgramFiles(x86)})) {
         Add-UniqueDirectory -List $roots -Path (Join-Path ${env:ProgramFiles(x86)} 'Windows Kits\10\bin')
     }
-    Add-UniqueDirectory -List $roots -Path 'D:\CODING\SDKs\EWDK\Program Files (x86)\Windows Kits\10\bin'
+    if (-not [string]::IsNullOrWhiteSpace($env:TUTZ_EWDK_ROOT)) {
+        Add-UniqueDirectory -List $roots -Path (Join-Path $env:TUTZ_EWDK_ROOT 'Program Files (x86)\Windows Kits\10\bin')
+    }
 
     foreach ($root in $roots) {
         foreach ($relative in @("x64\$Name", "x86\$Name", $Name)) {
